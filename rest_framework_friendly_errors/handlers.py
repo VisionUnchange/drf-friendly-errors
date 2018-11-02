@@ -11,17 +11,29 @@ def friendly_exception_handler(exc, context):
     if not response and settings.CATCH_ALL_EXCEPTIONS:
         exc = APIException(exc)
         response = exception_handler(exc, context)
-
     if response is not None:
         if is_pretty(response):
             return response
-        error_message = response.data['detail']
-        error_code = settings.FRIENDLY_EXCEPTION_DICT.get(
-            exc.__class__.__name__)
-        response.data.pop('detail', {})
+        data = response.data.copy()
+        field = list(data.keys())[0]
+        error_message = list(data.values())[0]
+        # error_message = response.data['detail']
+        error_code = "1000"
+        # response.data.pop('detail', {})
+        # response.data['code'] = error_code
+        # response.data['message'] = error_message
+        # response.data['status_code'] = response.status_code
+        # response.data['exception'] = exc.__class__.__name__
+        response.data.pop(field, {})
         response.data['code'] = error_code
         response.data['message'] = error_message
-        response.data['status_code'] = response.status_code
         # response.data['exception'] = exc.__class__.__name__
-
+        response.data['errors'] = [
+            {
+            "code": error_code,
+            "field": field,
+            "message": error_message,
+            }
+        ]
+        print(response.data)
     return response
