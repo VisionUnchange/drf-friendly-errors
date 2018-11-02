@@ -35,5 +35,5 @@ def friendly_exception_handler(exc, context):
             "message": error_message,
             }
         ]
-        print(response.data)
+
     return response
